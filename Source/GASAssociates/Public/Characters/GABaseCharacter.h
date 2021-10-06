@@ -84,6 +84,12 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="OnRep_PlayerState"))
 	void BP_OnRepPlayerState();
 
+	/**
+	 * @brief Called after AGABaseCharacter::InitAbilityActorInfo
+	 */
+	UFUNCTION(BlueprintNativeEvent, meta=(DisplayName="BP_OnAfterInitAbilityActor"), Category = "Abilities")
+	void BP_OnAfterInitAbilityActor();
+
 public:
 	// Sets default values for this character's properties
 	AGABaseCharacter(const FObjectInitializer& ObjectInitializer);

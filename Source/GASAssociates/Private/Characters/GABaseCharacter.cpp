@@ -8,7 +8,6 @@
 #include "Attributes/BaseAttributeSet.h"
 #include "Components/GAAbilitySystemComponent.h"
 
-
 // Sets default values
 AGABaseCharacter::AGABaseCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -54,6 +53,8 @@ void AGABaseCharacter::InitAbilityActorInfo()
 	{
 		GetAbilitySystemComponent()->InitAbilityActorInfo(this, this);
 		bAbilitySystemComponentWereInitialized = true;
+
+		BP_OnAfterInitAbilityActor();
 	}
 }
 
@@ -151,4 +152,8 @@ void AGABaseCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 	BP_OnRepPlayerState();
+}
+
+void AGABaseCharacter::BP_OnAfterInitAbilityActor_Implementation()
+{
 }

@@ -15,12 +15,6 @@ APSGASCharacter::APSGASCharacter(const FObjectInitializer& ObjectInitializer)
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-// Called when the game starts or when spawned
-void APSGASCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
 bool APSGASCharacter::CanInitAbilityActorInfo() const
 {
 	APlayerState* CurrentPlayerState = GetPlayerState();
@@ -36,6 +30,8 @@ void APSGASCharacter::InitAbilityActorInfo()
 			AbilitySystemComponent = AbilitySystemInterface->GetAbilitySystemComponent();
 			GetAbilitySystemComponent()->InitAbilityActorInfo(GetPlayerState(), this);
 			bAbilitySystemComponentWereInitialized = true;
+
+			BP_OnAfterInitAbilityActor();
 		}
 	}
 }
@@ -55,25 +51,4 @@ void APSGASCharacter::PossessedBy(AController* NewController)
 	AddAttributes();
 	AddStartupEffects();
 	AddAbilities();
-}
-
-void APSGASCharacter::OnRep_Controller()
-{
-	Super::OnRep_Controller();
-
-	/*
-	InitAbilityActorInfo();
-	AddAttributes();*/
-}
-
-
-// Called to bind functionality to input
-void APSGASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-}
-
-void APSGASCharacter::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
 }

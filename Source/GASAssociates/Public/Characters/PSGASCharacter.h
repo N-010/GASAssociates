@@ -16,9 +16,6 @@ public:
 	APSGASCharacter(const FObjectInitializer& ObjectInitializer);
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
 	//~ Begin GASBaseCharacter Interfaces
 	virtual bool CanInitAbilityActorInfo() const override;
 	virtual void InitAbilityActorInfo() override;
@@ -27,15 +24,5 @@ protected:
 	//~ Begin APlayerState Interfaces
 	virtual void OnRep_PlayerState() override;
 	virtual void PossessedBy(AController* NewController) override;
-	virtual void OnRep_Controller() override;
 	//~ End APlayerState Interfaces
-	
-public:
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	
-	//~ Begin APawn Interfaces
-	virtual void PostInitializeComponents() override;
-	//~ End APawn Interfaces
 };
