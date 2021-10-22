@@ -14,11 +14,6 @@ AGABaseCharacter::AGABaseCharacter(const FObjectInitializer& ObjectInitializer)
 {
 }
 
-bool AGABaseCharacter::IsAbilitiesWereAdded() const
-{
-	return bAbilitiesWereAdded;
-}
-
 bool AGABaseCharacter::IsAlive() const
 {
 	bool bIsAlive = false;
@@ -47,48 +42,42 @@ UAbilitySystemComponent* AGABaseCharacter::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
-void AGABaseCharacter::InitAbilityActorInfo()
+void AGABaseCharacter::InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor)
 {
 	if (CanInitAbilityActorInfo())
 	{
-		GetAbilitySystemComponent()->InitAbilityActorInfo(this, this);
-		bAbilitySystemComponentWereInitialized = true;
+		if (UGAAbilitySystemComponent* CurrentAbilitySystemComponent = GetGAAbilitySystemComponent())
+		{
+			if (!CurrentAbilitySystemComponent->IsAbilitySystemComponentWereInitialized())
+			{
+				CurrentAbilitySystemComponent->InitAbilityActorInfo(InOwnerActor, InAvatarActor);
+				CurrentAbilitySystemComponent->MarkAsInitialized();
 
-		BP_OnAfterInitAbilityActor();
+				BP_OnAfterInitAbilityActor();
+			}
+		}
 	}
-}
-
-bool AGABaseCharacter::IsAbilitySystemComponentWereInitialized() const
-{
-	return bAbilitySystemComponentWereInitialized;
 }
 
 bool AGABaseCharacter::CanInitAbilityActorInfo() const
 {
-	return IsValid(GetAbilitySystemComponent()) && !IsAbilitySystemComponentWereInitialized();
+	return IsValid(GetGAAbilitySystemComponent()) && !GetGAAbilitySystemComponent()->IsAbilitySystemComponentWereInitialized();
+}
+
+void AGABaseCharacter::UnRegisterAbilitySystemComponent()
+{
+	if (IsValid(GetAbilitySystemComponent()) && GetAbilitySystemComponent()->IsRegistered())
+	{
+		GetAbilitySystemComponent()->OnUnregister();
+	}
 }
 
 bool AGABaseCharacter::AddStartupEffects()
 {
-	if (IsValid(GetAbilitySystemComponent()) && !bStartupEffectsApplied && GetLocalRole() == ROLE_Authority)
+	if (IsValid(GetGAAbilitySystemComponent()) && !GetGAAbilitySystemComponent()->IsStartupEffectsApplied() && GetLocalRole() ==
+	    ROLE_Authority)
 	{
-		FGameplayEffectContextHandle EffectContext = GetAbilitySystemComponent()->MakeEffectContext();
-		EffectContext.AddSourceObject(this);
-		for (const auto& StartupEffect : StartupEffects)
-		{
-			FGameplayEffectSpecHandle GameplayEffectSpec = GetAbilitySystemComponent()->MakeOutgoingSpec(StartupEffect,
-				GetCharacterLevel(),
-				EffectContext);
-			if (GameplayEffectSpec.IsValid())
-			{
-				GetAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(*GameplayEffectSpec.Data.Get(),
-					GetAbilitySystemComponent());
-			}
-		}
-
-		bStartupEffectsApplied = true;
-
-		return true;
+		return GetGAAbilitySystemComponent()->AddStartupEffects(StartupEffects, GetCharacterLevel());
 	}
 
 	return false;
@@ -144,6 +133,8 @@ void AGABaseCharacter::PossessedBy(AController* NewController)
 
 void AGABaseCharacter::UnPossessed()
 {
+	UnRegisterAbilitySystemComponent();
+
 	Super::UnPossessed();
 	BP_OnRepPlayerState();
 }
@@ -151,6 +142,13 @@ void AGABaseCharacter::UnPossessed()
 void AGABaseCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
+
+	/** UnRegister on Client */
+	if (!GetPlayerState() && IsValid(AbilitySystemComponent) && !HasAuthority())
+	{
+		UnRegisterAbilitySystemComponent();
+	}
+	
 	BP_OnRepPlayerState();
 }
 

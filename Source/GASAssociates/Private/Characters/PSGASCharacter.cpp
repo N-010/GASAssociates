@@ -15,39 +15,32 @@ APSGASCharacter::APSGASCharacter(const FObjectInitializer& ObjectInitializer)
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-bool APSGASCharacter::CanInitAbilityActorInfo() const
+void APSGASCharacter::InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor)
 {
-	APlayerState* CurrentPlayerState = GetPlayerState();
-	return IsValid(CurrentPlayerState) && Cast<IAbilitySystemInterface>(CurrentPlayerState) && !IsAbilitySystemComponentWereInitialized();
+	Super::InitAbilityActorInfo(InOwnerActor, InAvatarActor);
+
+	AbilitySystemComponent = GetAbilitySystemComponent();
 }
 
-void APSGASCharacter::InitAbilityActorInfo()
+UAbilitySystemComponent* APSGASCharacter::GetAbilitySystemComponent() const
 {
-	if (CanInitAbilityActorInfo())
-	{
-		if (const IAbilitySystemInterface* AbilitySystemInterface = Cast<IAbilitySystemInterface>(GetPlayerState()))
-		{
-			AbilitySystemComponent = AbilitySystemInterface->GetAbilitySystemComponent();
-			GetAbilitySystemComponent()->InitAbilityActorInfo(GetPlayerState(), this);
-			bAbilitySystemComponentWereInitialized = true;
-
-			BP_OnAfterInitAbilityActor();
-		}
-	}
+	APlayerState* CurrentPlayerState = GetPlayerState();
+	IAbilitySystemInterface* AbilitySystemInterface = IsValid(CurrentPlayerState) ? Cast<IAbilitySystemInterface>(CurrentPlayerState) : nullptr;
+	return AbilitySystemInterface ? AbilitySystemInterface->GetAbilitySystemComponent() : nullptr; 
 }
 
 void APSGASCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	InitAbilityActorInfo();
+	InitAbilityActorInfo(GetPlayerState(), this);
 }
 
 void APSGASCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	InitAbilityActorInfo();
+	InitAbilityActorInfo(GetPlayerState(), this);
 	AddAttributes();
 	AddStartupEffects();
 	AddAbilities();

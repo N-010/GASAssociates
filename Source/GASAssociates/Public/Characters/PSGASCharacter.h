@@ -15,10 +15,12 @@ public:
 	// Sets default values for this character's properties
 	APSGASCharacter(const FObjectInitializer& ObjectInitializer);
 
-protected:
 	//~ Begin GASBaseCharacter Interfaces
-	virtual bool CanInitAbilityActorInfo() const override;
-	virtual void InitAbilityActorInfo() override;
+protected:
+	virtual void InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor) override;
+
+public:
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	//~ End GASBaseCharacter Interfaces
 
 	//~ Begin APlayerState Interfaces

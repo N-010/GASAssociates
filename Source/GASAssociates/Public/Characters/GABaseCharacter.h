@@ -35,11 +35,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "True"), Category = "Attribute")
 	TSubclassOf<UAttributeSet> AttributeSetClass;
 
-	bool bStartupEffectsApplied;
-	bool bAbilitySystemComponentWereInitialized;
-	bool bAbilitiesWereAdded;
-	
 public:
+	// Sets default values for this character's properties
+	AGABaseCharacter(const FObjectInitializer& ObjectInitializer);
+	
 	UFUNCTION(BlueprintPure, Category="Level")
 	virtual int32 GetCharacterLevel() const;
 
@@ -49,16 +48,18 @@ public:
 	
 	UGAAbilitySystemComponent* GetGAAbilitySystemComponent() const;
 
-	bool IsAbilitySystemComponentWereInitialized() const;
-	bool IsAbilitiesWereAdded() const;
-
 	UFUNCTION(BlueprintPure)
 	virtual  bool IsAlive() const;
 
 protected:
-	virtual void InitAbilityActorInfo();
+	virtual void InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor);
 
 	virtual bool CanInitAbilityActorInfo() const;
+
+	/**
+	 * @brief Resetting a AbilitySystemComponent for later use on a new avatar or owner 
+	 */
+	virtual void UnRegisterAbilitySystemComponent();
 
 	virtual bool AddStartupEffects();
 
@@ -89,8 +90,4 @@ protected:
 	 */
 	UFUNCTION(BlueprintNativeEvent, meta=(DisplayName="BP_OnAfterInitAbilityActor"), Category = "Abilities")
 	void BP_OnAfterInitAbilityActor();
-
-public:
-	// Sets default values for this character's properties
-	AGABaseCharacter(const FObjectInitializer& ObjectInitializer);
 };

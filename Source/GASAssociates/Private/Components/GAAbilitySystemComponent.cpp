@@ -14,11 +14,20 @@ UGAAbilitySystemComponent::UGAAbilitySystemComponent(const FObjectInitializer& O
 
 void UGAAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor)
 {
-	Super::InitAbilityActorInfo(InOwnerActor, InAvatarActor);
-
-	if (AbilityActorInfo->AvatarActor == InAvatarActor && AbilityActorInfo->OwnerActor == InOwnerActor)
+	if(IsAbilitySystemComponentWereInitialized())
 	{
+		return;
 	}
+	
+	/** UnRegister can be called to reuse the component on a new avatar.
+	 *	To do this you have to call the OnRegister component again
+	 */
+	if (!IsRegistered())
+	{
+		OnRegister();
+	}
+
+	Super::InitAbilityActorInfo(InOwnerActor, InAvatarActor);
 }
 
 const UAttributeSet* UGAAbilitySystemComponent::AddAttributes(TSubclassOf<UAttributeSet> Attributes, const UDataTable* DataTable)
@@ -56,6 +65,39 @@ void UGAAbilitySystemComponent::AddAbilities(const TArray<TSubclassOf<UGameplayA
 	bAbilitiesWereAdded = true;
 }
 
+bool UGAAbilitySystemComponent::AddStartupEffects(const TArray<TSubclassOf<UGameplayEffect>>& StartupEffects,
+	const int32& CharacterLevel)
+{
+	if (!IsStartupEffectsApplied() && GetOwnerRole() == ROLE_Authority)
+	{
+		FGameplayEffectContextHandle EffectContext = MakeEffectContext();
+		EffectContext.AddSourceObject(this);
+		for (const auto& StartupEffect : StartupEffects)
+		{
+			FGameplayEffectSpecHandle GameplayEffectSpec = MakeOutgoingSpec(StartupEffect,
+				CharacterLevel,
+				EffectContext);
+			if (GameplayEffectSpec.IsValid())
+			{
+				ApplyGameplayEffectSpecToTarget(*GameplayEffectSpec.Data.Get(), this);
+			}
+		}
+
+		bStartupEffectsApplied = true;
+	}
+
+	return IsStartupEffectsApplied();
+}
+
+void UGAAbilitySystemComponent::OnUnregister()
+{
+	Super::OnUnregister();
+
+	bStartupEffectsApplied = false;
+	bAbilitySystemComponentWereInitialized = false;
+	bAbilitiesWereAdded = false;
+}
+
 bool UGAAbilitySystemComponent::IsStartupEffectsApplied() const
 {
 	return bStartupEffectsApplied;
@@ -64,6 +106,11 @@ bool UGAAbilitySystemComponent::IsStartupEffectsApplied() const
 bool UGAAbilitySystemComponent::IsAbilitySystemComponentWereInitialized() const
 {
 	return bAbilitySystemComponentWereInitialized;
+}
+
+void UGAAbilitySystemComponent::MarkAsInitialized()
+{
+	bAbilitySystemComponentWereInitialized = true;
 }
 
 bool UGAAbilitySystemComponent::IsAbilitiesWereAdded() const

@@ -32,7 +32,7 @@ void AGASCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	InitAbilityActorInfo();
+	InitAbilityActorInfo(this, this);
 
 	AddAttributes();
 
@@ -45,7 +45,7 @@ void AGASCharacter::OnRep_Controller()
 {
 	Super::OnRep_Controller();
 
-	InitAbilityActorInfo();
+	InitAbilityActorInfo(this, this);
 }
 
 void AGASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
