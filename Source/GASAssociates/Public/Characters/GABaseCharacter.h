@@ -50,6 +50,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	virtual  bool IsAlive() const;
+	
+	UFUNCTION(BlueprintNativeEvent)
+	void OnDead();
 
 protected:
 	virtual void InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor);

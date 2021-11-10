@@ -27,6 +27,10 @@ bool AGABaseCharacter::IsAlive() const
 	return bIsAlive;
 }
 
+void AGABaseCharacter::OnDead_Implementation()
+{
+}
+
 UGAAbilitySystemComponent* AGABaseCharacter::GetGAAbilitySystemComponent() const
 {
 	return IsValid(GetAbilitySystemComponent()) ? Cast<UGAAbilitySystemComponent>(GetAbilitySystemComponent()) : nullptr;
@@ -66,9 +70,13 @@ bool AGABaseCharacter::CanInitAbilityActorInfo() const
 
 void AGABaseCharacter::UnRegisterAbilitySystemComponent()
 {
-	if (IsValid(GetAbilitySystemComponent()) && GetAbilitySystemComponent()->IsRegistered())
+	if (IsValid(AbilitySystemComponent) && AbilitySystemComponent->IsRegistered())
 	{
-		GetAbilitySystemComponent()->OnUnregister();
+		AbilitySystemComponent->OnUnregister();
+		if (AbilitySystemComponent->HasBeenInitialized())
+		{
+			AbilitySystemComponent->UninitializeComponent();
+		}
 	}
 }
 
@@ -148,7 +156,7 @@ void AGABaseCharacter::OnRep_PlayerState()
 	{
 		UnRegisterAbilitySystemComponent();
 	}
-	
+
 	BP_OnRepPlayerState();
 }
 

@@ -22,7 +22,7 @@ void UBaseGameplayAbility::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInf
 
 	if (bIsPassive && ActorInfo && ActorInfo->AbilitySystemComponent.IsValid() && !Spec.IsActive())
 	{
-		ActorInfo->AbilitySystemComponent->TryActivateAbility(Spec.Handle, /*bAllowRemoteActivation*/false);
+		ActorInfo->AbilitySystemComponent->TryActivateAbility(Spec.Handle, false);
 	}
 }
 

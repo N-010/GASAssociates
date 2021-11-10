@@ -14,17 +14,22 @@ UGAAbilitySystemComponent::UGAAbilitySystemComponent(const FObjectInitializer& O
 
 void UGAAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor)
 {
-	if(IsAbilitySystemComponentWereInitialized())
+	if (IsAbilitySystemComponentWereInitialized())
 	{
 		return;
 	}
-	
+
 	/** UnRegister can be called to reuse the component on a new avatar.
 	 *	To do this you have to call the OnRegister component again
 	 */
 	if (!IsRegistered())
 	{
 		OnRegister();
+	}
+
+	if (!HasBeenInitialized() && bWantsInitializeComponent)
+	{
+		InitializeComponent();
 	}
 
 	Super::InitAbilityActorInfo(InOwnerActor, InAvatarActor);
@@ -51,6 +56,12 @@ void UGAAbilitySystemComponent::AddAbilities(const TArray<TSubclassOf<UGameplayA
 		return;
 	}
 
+	if (!IsValid(GetAvatarActor()))
+	{
+		UE_LOG(LogAbilitySystemComponent, Error, TEXT("UGAAbilitySystemComponent::AddAbilities: Avatar not set"));
+		return;
+	}
+
 	for (const TSubclassOf<UGameplayAbility>& Ability : Abilities)
 	{
 		int32 InputID = INDEX_NONE;
@@ -59,7 +70,11 @@ void UGAAbilitySystemComponent::AddAbilities(const TArray<TSubclassOf<UGameplayA
 			EAbilityInput AbilityInput = CDO->GetInputID();
 			InputID = AbilityInput != EAbilityInput::None ? static_cast<int32>(AbilityInput) : INDEX_NONE;
 		}
-		GiveAbility(FGameplayAbilitySpec(Ability, Level, InputID, this));
+		if (!GiveAbility(FGameplayAbilitySpec(Ability, Level, InputID, this)).IsValid())
+		{
+			UE_LOG(LogAbilitySystemComponent, Error, TEXT("UGAAbilitySystemComponent::AddAbilities: GiveAbility: %s Is Not Valid"),
+				*Ability->GetFName().ToString());
+		}
 	}
 
 	bAbilitiesWereAdded = true;

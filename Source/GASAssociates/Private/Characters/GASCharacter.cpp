@@ -33,11 +33,8 @@ void AGASCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 	InitAbilityActorInfo(this, this);
-
 	AddAttributes();
-
 	AddStartupEffects();
-
 	AddAbilities();
 }
 

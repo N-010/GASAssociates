@@ -101,6 +101,8 @@ protected:
 	virtual void ApplyDamage(const FGameplayEffectModCallbackData& Data);
 	virtual void ApplyWalkSpeed(const FGameplayEffectModCallbackData& Data);
 	virtual void ApplyWalkSpeedCrouched(const FGameplayEffectModCallbackData& Data);
+
+	virtual void OnDead(const FGameplayEffectModCallbackData& Data);
 	
 	virtual UCharacterMovementComponent* GetTargetCharacterMovement(const FGameplayEffectModCallbackData& Data) const;
 	virtual UCharacterMovementComponent* GetCharacterMovement() const;

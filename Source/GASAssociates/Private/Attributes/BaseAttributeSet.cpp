@@ -87,6 +87,10 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	if (Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
+		if (GetHealth() <= 0.f)
+		{
+			OnDead(Data);
+		}
 	}
 	else if (Attribute == GetDamageAttribute())
 	{
@@ -175,6 +179,11 @@ void UBaseAttributeSet::ApplyDamage(const FGameplayEffectModCallbackData& Data)
 		const float NewHealth = GetHealth() - LocalDamageByHealth;
 		SetHealth(FMath::Clamp(NewHealth, 0.0f, GetMaxHealth()));
 	}
+
+	if (GetHealth() <= 0)
+	{
+		OnDead(Data);
+	}
 }
 
 void UBaseAttributeSet::ApplyWalkSpeed(const FGameplayEffectModCallbackData& Data)
@@ -208,6 +217,15 @@ void UBaseAttributeSet::ApplyWalkSpeedCrouched(const FGameplayEffectModCallbackD
 	if (IsValid(AvatarMovementComponent))
 	{
 		AvatarMovementComponent->MaxWalkSpeedCrouched = GetWalkSpeedCrouched();
+	}
+}
+
+void UBaseAttributeSet::OnDead(const FGameplayEffectModCallbackData& Data)
+{
+	const UAbilitySystemComponent* TargetASC = &Data.Target;
+	if (AGABaseCharacter* TargetBaseCharacter = IsValid(TargetASC) ? Cast<AGABaseCharacter>(TargetASC->GetAvatarActor()) : nullptr)
+	{
+		TargetBaseCharacter->OnDead();
 	}
 }
 
