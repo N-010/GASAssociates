@@ -91,21 +91,23 @@ bool AGABaseCharacter::AddStartupEffects()
 	return false;
 }
 
-const UAttributeSet* AGABaseCharacter::GetAttributeSet() const
+/*template<>
+const UAttributeSet* AGABaseCharacter::GetAttributeSet<UAttributeSet>() const
 {
-	if (UGAAbilitySystemComponent* GAAbilitySystemComponent = GetGAAbilitySystemComponent())
+	if (const UGAAbilitySystemComponent* GAAbilitySystemComponent = GetGAAbilitySystemComponent())
 	{
-		return GAAbilitySystemComponent->SpawnedAttributes.Num() > 0 ? GAAbilitySystemComponent->SpawnedAttributes[0] : nullptr;
+		return GAAbilitySystemComponent->GetSpawnedAttributes().Num() > 0 ? GAAbilitySystemComponent->GetSpawnedAttributes()[0] : nullptr;
 	}
 
 	return nullptr;
 }
 
-
+template<>
 UAttributeSet* AGABaseCharacter::GetAttributeSet()
 {
-	return const_cast<UAttributeSet*>(static_cast<const AGABaseCharacter*>(this)->GetAttributeSet());
-}
+	return const_cast<UAttributeSet*>(static_cast<const AGABaseCharacter*>(this)->GetAttributeSet<UAttributeSet>());
+}*/
+
 
 const UBaseAttributeSet* AGABaseCharacter::GetBaseAttributeSet() const
 {
